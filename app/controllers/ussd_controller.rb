@@ -33,24 +33,44 @@ class UssdController < ApplicationController
       }
     }
     response = ''
-    Net::SSH.start('localhost', 'neeraj',:port=> 22,:password => 'neeraj123') do |ssh|
+ 
+   Net::SSH.start('123.238.41.13', 'mobme',:port=> 22,:password => 'mobme123') do |ssh|
       service_details = servers["ussd-vodafone-chennai-rotn"][service]
-      command = service_details[action]
-      shell = ssh.shell.open
-      if service_details["options"].include? "tunnel"
-        ssh.forward.remote_to( 3128, 'localhost', 3128 )
-        shell.send_data "export http_proxy=http://localhost:3128/\n"
+      commands = []
+
+      if service_details["options"] and service_details["options"].include? "tunnel"
+        ssh.forward.remote(3128,"localhost",3128)
+        commands << "export http_proxy=http://localhost:3128"
       end
-      
-      puts command
+      commands << service_details[action]
+
       begin
-        Timeout.timeout(10) { shell.send_data command }
+        Timeout.timeout(30) { execute_in_shell( ssh, commands ) }
         response = 'Done'
-      rescue
-        response = 'Error'
+      rescue => e
+        response = "Error #{e.message}"
       end
     end
     return response
+  end
+
+#http://stackoverflow.com/questions/5051782/ruby-net-ssh-login-shell
+  def execute_in_shell( ssh, commands )
+    channel = ssh.open_channel do |channel|
+      channel.exec "bash -l" do |new_channel, success|
+        new_channel.on_data do |second_channel, data|
+          puts "#{data}"
+        end
+
+        commands.each do |command|
+          new_channel.send_data "#{command}\n"
+        end
+
+        #exit or shell will hang indefinitely
+        new_channel.send_data "exit\n"
+      end
+    end
+    channel.wait
   end
 
 end
