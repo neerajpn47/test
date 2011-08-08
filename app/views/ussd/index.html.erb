@@ -1,0 +1,9 @@
+<div>
+  <ul>
+    <% @services.each do |server_name, server_details| %>
+      <% server_details.each do |service_name, server_name| %>
+        <li><%= service_name %></li>
+      <% end %>
+    <% end %> 
+  </ul>
+</div>
