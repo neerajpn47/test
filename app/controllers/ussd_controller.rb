@@ -36,14 +36,16 @@ class UssdController < ApplicationController
     Net::SSH.start('localhost', 'neeraj',:port=> 22,:password => 'neeraj123') do |ssh|
       service_details = servers["ussd-vodafone-chennai-rotn"][service]
       command = service_details[action]
+      shell = ssh.shell.open
       if service_details["options"].include? "tunnel"
         ssh.forward.remote_to( 3128, 'localhost', 3128 )
+        shell.send_data "export http_proxy=http://localhost:3128/\n"
+      end
+      
       puts command
       begin
-        Timeout.timeout(10) do
-          ssh.exec!(command)
-        end
-      response = 'Done'
+        Timeout.timeout(10) { shell.send_data command }
+        response = 'Done'
       rescue
         response = 'Error'
       end
