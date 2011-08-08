@@ -1,9 +1,60 @@
-<div>
-  <ul>
-    <% @services.each do |server_name, server_details| %>
-      <% server_details.each do |service_name, server_name| %>
-        <li><%= service_name %></li>
+<div id="tabs">
+  <% @servers.each do |server_name, services| %>
+    <ul>
+      <% services.each do |service_name| %>
+        <li>
+	  <a href="#<%= service_name %>">
+	    <%= service_name %>
+	  </a>
+	</li>
       <% end %>
-    <% end %> 
-  </ul>
+    </ul>
+    <% services.each do |service_name| %>
+      <div id="<%= service_name %>">
+	<a href="#" class="dialog_link">Start</a>
+	<a href="#" class="dialog_link">Stop</a>
+      </div>
+    <% end %>
+    <div id="dialog"></div>
+  <% end %>
 </div>
+
+<script type = 'text/javascript'>
+
+  function send_service_request(server_name, service_name, action)
+  {
+    $.get("/ussd/" + action, {server_name: server_name, service_name: service_name}, function(data){
+      alert(data);
+    });
+  }
+
+  // Dialog			
+  $("#dialog").dialog({
+    autoOpen: false,
+    width: 600,
+    buttons: {
+      "Ok": function() { 
+        $(this).dialog("close"); 
+        text = $("#dialog").text().split(" ");
+        server_name = '';
+        action = text[0].toLowerCase();
+        service_name = text[2];
+        send_service_request(server_name, service_name, action);
+      }, 
+      "Cancel": function() { 
+        $(this).dialog("close"); 
+      } 
+    }
+  });
+  
+  // Dialog Link
+  $(".dialog_link").click(function(){
+    id = $(this).text();
+    service_name = $(this).closest("div").attr("id");
+    $("#dialog").html(id + " service: " + service_name)
+    $("#dialog").dialog('open');
+    return false;
+  });
+
+  $("#tabs").tabs();
+</script>

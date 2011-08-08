@@ -51,6 +51,7 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.16)
+    net-ssh (2.1.4)
     polyglot (0.3.2)
     rack (1.2.3)
     rack-mount (0.6.14)
@@ -113,6 +114,7 @@ DEPENDENCIES
   guard
   guard-rspec
   libnotify
+  net-ssh
   rails (= 3.0.9)
   rake
   rb-fsevent
