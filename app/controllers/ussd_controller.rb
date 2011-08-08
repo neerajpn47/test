@@ -1,41 +1,26 @@
 class UssdController < ApplicationController
   def index
-    @servers = {
-      "ussd-vodafone-chennai-rotn" => [
-        'ussd-vodafone-renderer-1',
-        'ussd-vodafone-renderer-2',
-        'ussd-vodafone-renderer-3',
-        'smscd',
-        'ussd'
-      ]
-    }
+    @servers = service_list
   end
 
   def start
-    render :text => execute_command(params["service_name"],'start')
+    render :text => execute_command(params["server_name"], params["service_name"], 'start')
   end
 
   def stop
-    render :text => execute_command(params["service_name"],'stop')
+    render :text => execute_command(params["server_name"], params["service_name"], 'stop')
   end
 
   def log
   end
 
-  def execute_command(service,action)
-    servers = {
-      "ussd-vodafone-chennai-rotn" => {
-        'ussd-vodafone-renderer-1' => {"start" => 'ls', "stop" => 'ls'},
-        'ussd-vodafone-renderer-2' => {"start" => 'ls', "stop" => 'ls'},
-        'ussd-vodafone-renderer-3' => {"start" => 'ls', "stop" => 'ls'},
-        'smscd' => {"start" => 'pwd', "stop" => 'pwd', "options" => ["tunnel"]},
-        'ussd' => {"start" => 'pwd', "stop" => 'pwd'}
-      }
-    }
+  def execute_command(server, service, action)
     response = ''
- 
-   Net::SSH.start('123.238.41.13', 'mobme',:port=> 22,:password => 'mobme123') do |ssh|
-      service_details = servers["ussd-vodafone-chennai-rotn"][service]
+    server_details = server_details_for[server]
+    
+    Net::SSH.start(server_details["ip"], server_details["username"], :port=> server_details["port"], :password => server_details["password"]) do |ssh|
+      service_type = service_list[server][service][:type]
+      service_details = service_types[service_type]
       commands = []
 
       if service_details["options"] and service_details["options"].include? "tunnel"
@@ -71,6 +56,55 @@ class UssdController < ApplicationController
       end
     end
     channel.wait
+  end
+
+#Have to move to configuration file
+  def service_types
+    { 
+      "renderer" => {"start" => "ls", "stop" => "ls"},
+      "smscd" => {"start" => "ls", "stop" => "ls", "option" => "tunnel"},
+      "ussd" => {"start" => "ls", "stop" => "ls"}
+    }
+  end
+
+  def service_list
+    {
+      "ussd-vodafone-chennai-rotn" => 
+      {
+        "renderer-1" => {:server_name => "renderer-vodafone-chennai-rotn", :message => "USSD Renderer running on server one", :type => "renderer"},
+        "renderer-2" => {:server_name => "renderer-vodafone-chennai-rotn-2", :message => "USSD Renderer running on server two", :type => "renderer"},
+        "renderer-3" => {:server_name => "renderer-vodafone-chennai-rotn-3", :message => "USSD Renderer running on server three", :type => "renderer"},
+        "smscd" => {:server_name => "ussd-vodafone-chennai-rotn", :message => "smscd service running on ussd server ", :type => "smscd"},
+        "ussd" => {:server_name => "ussd-vodafone-chennai-rotn", :message => "USSD service running on ussd server", :type => "ussd"}
+      }
+    }
+  end
+
+  def server_details_for
+    { 
+      "ussd-vodafone-chennai-rotn" => 
+      {
+        "ip" => "123.238.41.13",
+        "port" => 22,
+        "username" => "mobme",
+        "password" => "mobme123" },
+      "renderer-vodafone-chennai-rotn" => {
+        "ip" => "123.238.41.13",
+        "port" => 22,
+        "username" => "mobme",
+        "password" => "mobme123" },
+      "renderer-vodafone-chennai-rotn-2" => {
+        "ip" => "123.238.41.13",
+        "port" => 22,
+        "username" => "mobme",
+        "password" => "mobme123" },
+      "renderer-vodafone-channai-rotn-3" => {
+        "ip" => "123.238.41.13",
+        "port" => 22,
+        "username" => "mobme",
+        "password" => "mobme123"
+      } 
+    }
   end
 
 end

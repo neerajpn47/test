@@ -1,7 +1,7 @@
 <div id="tabs">
   <% @servers.each do |server_name, services| %>
     <ul>
-      <% services.each do |service_name| %>
+      <% services.each do |service_name, service_details| %>
         <li>
 	  <a href="#<%= service_name %>">
 	    <%= service_name %>
@@ -9,10 +9,16 @@
 	</li>
       <% end %>
     </ul>
-    <% services.each do |service_name| %>
+    <% services.each do |service_name, service_details| %>
       <div id="<%= service_name %>">
-	<a href="#" class="dialog_link">Start</a>
-	<a href="#" class="dialog_link">Stop</a>
+	<span class="<%= server_name %>">
+	  <%= service_details["message"] %></br>
+	  Server Name: <%= service_details[:server_name] %></br>
+	  Service Type: <%= service_details[:type] %></br>
+	  
+	  <a href="#" class="dialog_link">Start</a>
+	  <a href="#" class="dialog_link">Stop</a>
+	</span>
       </div>
     <% end %>
     <div id="dialog"></div>
@@ -36,7 +42,7 @@
       "Ok": function() { 
         $(this).dialog("close"); 
         text = $("#dialog").text().split(" ");
-        server_name = '';
+        server_name = text[4].toLowerCase();
         action = text[0].toLowerCase();
         service_name = text[2];
         send_service_request(server_name, service_name, action);
@@ -50,8 +56,9 @@
   // Dialog Link
   $(".dialog_link").click(function(){
     id = $(this).text();
+    server_name = $(this).closest("span").attr("class");
     service_name = $(this).closest("div").attr("id");
-    $("#dialog").html(id + " service: " + service_name)
+    $("#dialog").html(id + " service: " + service_name + " ( " + server_name + " )")
     $("#dialog").dialog('open');
     return false;
   });
