@@ -84,11 +84,7 @@ class UssdController < ApplicationController
     {
       "ussd-vodafone-chennai-rotn" => 
       {
-        "renderer-1" => {:server_name => "renderer-vodafone-chennai-rotn", :message => "USSD Renderer running on server one", :type => "renderer"},
-        "renderer-2" => {:server_name => "renderer-vodafone-chennai-rotn-2", :message => "USSD Renderer running on server two", :type => "renderer"},
-        "renderer-3" => {:server_name => "renderer-vodafone-chennai-rotn-3", :message => "USSD Renderer running on server three", :type => "renderer"},
-        "smscd" => {:server_name => "ussd-vodafone-chennai-rotn", :message => "smscd service running on ussd server ", :type => "smscd"},
-        "ussd" => {:server_name => "ussd-vodafone-chennai-rotn", :message => "USSD service running on ussd server", :type => "ussd"}
+        "ussd" => {:server_name => "ussd-1", :message => "USSD service running on ussd server", :type => "ussd"}
       }
     }
   end
