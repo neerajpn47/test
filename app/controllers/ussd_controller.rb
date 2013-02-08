@@ -95,12 +95,12 @@ class UssdController < ApplicationController
 
   def server_details_for
     { 
-      "ussd-vodafone-chennai-rotn" => 
+      "ussd" => 
       {
-        "ip" => "123.238.41.13",
-        "port" => 4918,
-        "username" => "mobme",
-        "password" => "mobme123" 
+        "ip" => "localhost",
+        "port" => 22,
+        "username" => "test",
+        "password" => "test123" 
       }
     }
   end
